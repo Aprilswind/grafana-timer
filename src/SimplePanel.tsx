@@ -1,68 +1,35 @@
-import React from 'react';
 import { PanelProps } from '@grafana/data';
 import { SimpleOptions } from 'types';
-import { css, cx } from '@emotion/css';
+import React, {useEffect, useState} from 'react';
 import { stylesFactory, useTheme } from '@grafana/ui';
+import ProgressBar from "@ramonak/react-progress-bar";
+import "./index.css"
 
 interface Props extends PanelProps<SimpleOptions> {}
 
 export const SimplePanel: React.FC<Props> = ({ options, data, width, height }) => {
+  const {seconds}: {seconds: number} = options
+  const [progress, setProgress] = useState<number>(0)
+  console.log(progress)
+  useEffect(() => {
+    console.log(options, data)
+    const timer = setInterval(() => {
+      setProgress((p: number) => p + 1)
+    }, 1000)
+    setTimeout(() => clearInterval(timer), seconds * 1000)
+    return () => clearInterval(timer)
+  }, [])
   const theme = useTheme();
-  const styles = getStyles();
+  console.log(theme)
   return (
-    <div
-      className={cx(
-        styles.wrapper,
-        css`
-          width: ${width}px;
-          height: ${height}px;
-        `
-      )}
-    >
-      <svg
-        className={styles.svg}
-        width={width}
-        height={height}
-        xmlns="http://www.w3.org/2000/svg"
-        xmlnsXlink="http://www.w3.org/1999/xlink"
-        viewBox={`-${width / 2} -${height / 2} ${width} ${height}`}
-      >
-        <g>
-          <circle style={{ fill: `${theme.isLight ? theme.palette.greenBase : theme.palette.blue95}` }} r={100} />
-        </g>
-      </svg>
-
-      <div className={styles.textBox}>
-        {options.showSeriesCount && (
-          <div
-            className={css`
-              font-size: ${theme.typography.size[options.seriesCountSize]};
-            `}
-          >
-            Number of series: {data.series.length}
-          </div>
-        )}
-        <div>Text option value: {options.text}</div>
-      </div>
-    </div>
+   <div className={`bg-[${theme.colors.bg2}] w-full h-full flex flex-col justify-evenly items-center p-4 rounded`}>
+   <div className='flex justify-between w-full'>
+    <p className={`text-4xl text-[${theme.colors.textStrong}]`}> Time to load the next shot </p>
+    <p className={`text-[${theme.colors.textWeak}]`}> {seconds - progress} sec remaining </p>  
+   </div>
+    <ProgressBar height="12px" customLabel=" " baseBgColor={theme.colors.bg2} bgColor={theme.colors.bgBlue1} maxCompleted={seconds} completed={progress} className="w-full" />
+   </div> 
   );
 };
 
-const getStyles = stylesFactory(() => {
-  return {
-    wrapper: css`
-      position: relative;
-    `,
-    svg: css`
-      position: absolute;
-      top: 0;
-      left: 0;
-    `,
-    textBox: css`
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      padding: 10px;
-    `,
-  };
-});
+
