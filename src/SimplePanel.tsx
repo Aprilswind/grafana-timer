@@ -1,24 +1,22 @@
 import { PanelProps } from '@grafana/data';
 import { SimpleOptions } from 'types';
 import React, {useEffect, useState} from 'react';
-import { stylesFactory, useTheme } from '@grafana/ui';
+import { useTheme } from '@grafana/ui';
 import ProgressBar from "@ramonak/react-progress-bar";
 import "./index.css"
 
 interface Props extends PanelProps<SimpleOptions> {}
 
-export const SimplePanel: React.FC<Props> = ({ options, data, width, height }) => {
-  const {seconds}: {seconds: number} = options
+export const SimplePanel: React.FC<Props> = ({ options }) => {
+  const {seconds} = options
   const [progress, setProgress] = useState<number>(0)
-  console.log(progress)
   useEffect(() => {
-    console.log(options, data)
     const timer = setInterval(() => {
       setProgress((p: number) => p + 1)
     }, 1000)
     setTimeout(() => clearInterval(timer), seconds * 1000)
     return () => clearInterval(timer)
-  }, [])
+  }, [seconds])
   const theme = useTheme();
   console.log(theme)
   return (
