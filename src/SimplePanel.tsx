@@ -10,9 +10,8 @@ interface Props extends PanelProps<SimpleOptions> {}
 export const SimplePanel: React.FC<Props> = ({ options, width, height, replaceVariables, fieldConfig, data }) => {
   const {seconds, text} = options
   const [progress, setProgress] = useState<number>(0)
-  const [numeric, setNumeric] = useState<number>(0)
+  const [numeric, setNumeric] = useState<number>(1)
   const theme = useTheme();
-  console.log("rerender")
   useEffect(() => {
     try {
       const meta = getFieldDisplayValues({
@@ -22,15 +21,13 @@ export const SimplePanel: React.FC<Props> = ({ options, width, height, replaceVa
           fieldConfig,
           theme
       })
-      console.log(meta)
       if (meta && meta.length) {
-        const {display} = meta[0]
         setNumeric(display.numeric)
       }
     } catch (e) {
-      console.log("error", e) 
+      console.log(e) 
     }
-  }, [])
+  }, [data.series, theme, replaceVariables, fieldConfig])
   useEffect(() => {
     if (numeric) {
       const timer = setInterval(() => {
@@ -39,7 +36,6 @@ export const SimplePanel: React.FC<Props> = ({ options, width, height, replaceVa
       setTimeout(() => clearInterval(timer), seconds * 1000)
       return () => clearInterval(timer)
     } else {
-      console.log(numeric)
       return () => {}
     }
   }, [seconds, numeric])
@@ -51,8 +47,8 @@ export const SimplePanel: React.FC<Props> = ({ options, width, height, replaceVa
     height: height
    }} className={`flex flex-col justify-evenly items-center p-4 rounded-xl shadow-lg`}>
    <div className='flex justify-between w-full'>
-    <p className={`text-4xl text-[${theme.colors.text.primary}]`}> {numeric ? text : "Casting in progress"} </p>
-    { numeric ? <p className={`text-[${theme.colors.text.secondary}]`}> {seconds - progress} sec remaining </p> : <p> </p> } 
+    <p className={`text-4xl text-[${theme.colors.text.primary}]`}> {numeric && (seconds - progress) ? text : "Casting in progress"} </p>
+    <p className={`text-[${theme.colors.text.secondary}]`}> { numeric && (seconds - progress) ? `${seconds - progress} remaining` : "Attention! Ideal production gap exceeded" } </p>
    </div>
     <ProgressBar height="12px" customLabel=" " baseBgColor={theme.colors.background.primary} bgColor={theme.colors.info.shade} maxCompleted={seconds} completed={numeric ? progress : seconds} className="w-full" />
    </div> 
